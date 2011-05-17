@@ -1,0 +1,34 @@
+This addon is based on the patch I wrote for bug 589401.
+
+1. Dragging back out not implemented
+Currently, this only allows dragging into Panorama, and doesn't support dragging
+back out to the rest of the browser (even on the same drag that entered).  
+
+This is due to the complication of handling when the Panorama button is in the
+same location both inside and outside of Panorama.  In that case, there is a
+tendency to "bounce" between the two states.  
+
+The remedy would be to fiddle with the event listeners, but I haven't found a
+robust way to handle that at present, due to the fact that there isn't an easy
+way to tell if a drag ended unless we are the source node; we _can_ get the
+source node via dataTransfer.mozSourceNode, but it won't exist for external
+drags.  
+
+Suggestions needed for handling that case.
+
+2. Dragging tabs between windows not implemented
+If a tab does not have a _tabViewTabItem (which there doesn't seem to be when
+dragging between windows), it can't be dropped.  Apparently tabs don't pass
+alternate data (eg, the URI in a text form), so it will simply balk.
+
+Solution might be to construct a new TabItem or see how that data might be
+made available between windows so that simply turning it on would work.
+
+3. Replacing the drag with the tabitem
+Assuming [1] and [2] cannot be resolved, it would make sense to try to replace
+the drag with the tabitem once in Panorama.  At that point the true drag would
+be cancelled and only the Panorama drag would be used.  It would make that case
+simpler, but it wouldn't necessarily handle the non-tab cases.
+
+For the non-tab cases, it's possible that the new tab could be created and then
+replace the drag with it, though.
